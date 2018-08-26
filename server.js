@@ -6,7 +6,7 @@ var morgan      = require('morgan');
 var connection = require('./connection');
 var routes = require('./routes');
 var multer	=  require('multer');
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 4000
 //var upload = multer({ dest: './uploads' });
 var storage	=	multer.diskStorage({
  destination: function (req, file, callback) {
