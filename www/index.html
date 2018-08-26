@@ -1,0 +1,263 @@
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+        <link rel='stylesheet' href='css/bootstrap.min.css'>      
+        <script src='js/angular.js'></script>
+        <script src='js/ui-bootstrap-tpls-1.1.1.min.js'></script>
+        <script src='cjs/index.js'></script>
+        <link href="css/main.css" rel="stylesheet">
+        <script src="js/jquery.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="tableExport.js"></script>
+        <script src="cjs/filesaver.js"></script>
+
+
+        <style type='text/css'>
+            #footer {
+                position: fixed;
+                width: 100%;
+                bottom: 0;
+                left: 0;
+                text-align: center;
+                height: 20px;
+                background: #E6E4E4;
+            }
+
+            .input-group .icon-addon .form-control {
+                border-radius: 0;
+            }
+
+            .icon-addon {
+                position: relative;
+                color: #555;
+                display: block;
+            }
+
+            .icon-addon:after,
+            .icon-addon:before {
+                display: table;
+                content: ' ';
+            }
+
+            .icon-addon:after {
+                clear: both;
+            }
+
+            .icon-addon.addon-md .glyphicon,
+            .icon-addon .glyphicon,
+            .icon-addon.addon-md .fa,
+            .icon-addon .fa {
+                position: absolute;
+                z-index: 2;
+                left: 10px;
+                font-size: 14px;
+                margin-left: -2.5px;
+                text-align: center;
+                padding: 10px 0;
+                top: 1px
+            }
+
+            .icon-addon.addon-lg .form-control {
+                line-height: 1.33;
+                height: 30px;
+                font-size: 13px;
+                padding: 10px 16px 10px 40px;
+            }
+
+            .icon-addon.addon-lg .fa,
+            .icon-addon.addon-lg .glyphicon {
+                font-size: 13px;
+                margin-left: 0;
+                left: 11px;
+                top: -1px;
+                color: #F87531;
+            }
+
+            .loader {
+                position: fixed;
+                left: 0px;
+                top: 0px;
+                width: 100%;
+                height: 100%;
+                z-index: 9999;
+                background: url('images/page-loader.gif') 50% 50% no-repeat rgb(249, 249, 249);
+            }
+        </style>
+    </head>
+    <body class='theme-red' ng-app='kitchenApp' ng-controller='kitchenController' onpageshow='if(event.persisted) noBack();' onunload=''>
+        <div class="wrapper">
+            <div class ="container">
+                <!--add-->
+                <button style="background: #F87531;color: white;font-size: 14px;text-align: center;margin: 15px auto;display: inline-block;left: 0;" type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModalAdd">Add Kitchen</button>
+                <div class="btn" style="color:#F87531;font-size:40px;display:inline-block;float:right;color: #F87531;font-size: 40px;display: inline-block;float: right;margin: 10px;right: 0;" title="Export To Excel"> <img ng-click="exportData('kitchen.xls')" width="100%" src="/images/xls.png"></div>
+                <div class="modal fade" tabindex="-1" id="myModalAdd" role="dialog">
+                    <div class="modal-dialog">
+                        <!-- Modal content-->
+                        <div class="modal-content" >
+                            <div class="modal-body" >
+                                <div class="modal-header">
+                                    <button type="button" class="close" ng-click="cleartext()" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title" style="text-align:center">Add Kitchen </h4>
+                                </div>
+                                <form  name="add_country" class="form-horizontal">
+                                    <div class='row'>
+                                        <div class='col-lg-3'>
+                                            <label>Name</label>
+                                        </div>
+                                        <div class='col-lg-8'>
+                                            <input class='form-control' type='text'  ng-model='kitcheneadd.name' placeholder="Name" >
+                                        </div>
+                                    </div>
+                                    <div class='row'>
+                                        <div class='col-lg-3'>
+                                            <label>Quantity</label>
+                                        </div>
+                                        <div class='col-lg-8'>
+                                            <input class='form-control' type='number'  ng-model='kitcheneadd.quantity' placeholder="Quantity" >
+                                        </div>
+                                    </div>
+                                    <div class='row'>
+                                        <div class='col-lg-3'>
+                                            <label>Created-till-now</label>
+                                        </div>
+                                        <div class='col-lg-8'>
+                                            <input class='form-control' type='number'  ng-model='kitcheneadd.ctn' placeholder="Ctn" >
+                                        </div>
+                                    </div>
+                                    <div class='row'>
+                                        <div class='col-lg-3'>
+                                            <label>Predicted</label>
+                                        </div>
+                                        <div class='col-lg-8'>
+                                            <input class='form-control' type='number'  ng-model='kitcheneadd.predicted' placeholder="Predicted" >
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer" >
+                                        <button type="button" style="background:#AAAAAA;" class="btn" value="submit" ng-click="addkitchen()" data-dismiss="modal" ng-disabled="add_country.$invalid"><b>Submit</b></button> 
+                                       <div style="color:red;float:left;">Predicted Always greater than and equal to Quantity * Ctn </div> 
+                                    </div> 
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--end add-->
+                <div class="modal modal-overlay" id="myModalEdit" role="dialog">
+                    <div class="modal-dialog ">
+                        <div class="modal-content ">
+                            <div class="modal-header ">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class='modal-title' style='text-align:center'>EDIT Kitchen</h4>
+                            </div>
+                            <form role='form' name='edit_member' ng-repeat='kitchenedit in getcitymasterdata'>
+                                <div>
+                                    <div class='row'>
+                                        <div class='col-lg-3'>
+                                            <label>Name</label>
+                                        </div>
+                                        <div class='col-lg-8'>
+                                            <input class='form-control' type='text'  ng-model='kitchenedit.name' readonly/>
+                                        </div>
+                                    </div>
+                                    <div class='row'>
+                                        <div class='col-lg-3'>
+                                            <label>Quantity</label>
+                                        </div>
+                                        <div class='col-lg-8'>
+                                            <input class='form-control' type='number'  ng-model='kitchenedit.quantity' />
+                                        </div>
+                                    </div>
+                                    <div class='row'>
+                                        <div class='col-lg-3'>
+                                            <label>Created-till-now</label>
+                                        </div>
+                                        <div class='col-lg-8'>
+                                            <input class='form-control' type='text'  ng-model='kitchenedit.ctn'/>
+                                        </div>
+                                    </div>
+                                    <div class='row'>
+                                        <div class='col-lg-3'>
+                                            <label>Predicted</label>
+                                        </div>
+                                        <div class='col-lg-8'>
+                                            <input class='form-control' type='text'  ng-model='kitchenedit.predicted' readonly/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="modal-footer">
+                                <div class="form-actions">
+                                    <div class="row">
+                                        <div class="col-lg-offset-6 col-lg-4">
+                                            <input type='button ' class='btn btn-primary ' value='submit ' ng-click='editcitymaster()'>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='row'>
+                    <div class='table-responsive'>
+                        <table style='font-size: 14px; margin: 10px auto; text-align: center;' class='table table-striped table-bordered export-table'>
+                            <thead style="background-color:#ff6666;text-align:center;color: #fff;">
+                            <th>Name</th>
+                            <th>Quantity</th>
+                            <th>Created-till-now</th>
+                            <th>Predicted</th>
+                            <th style='text-align:center;'>
+                                <b style='color:white'>Status</b>
+                            </th>
+                            </thead>
+                            <tbody ng-init='listcitymaster()'>
+                                <tr ng-repeat='kitchen in listcitymasterdata|filter:search | startFrom:currentPage * pageSize | limitTo:pageSize  | orderBy:sortType:sortReverse'>
+                                    <td style='text-align:center;'><a href='' ng-click='getcitymaster(kitchen.id)' data-toggle='modal' data-target='#myModalEdit'>{{kitchen.name}}</a></td>
+                                    <td style='text-align:center;'>{{kitchen.quantity}}</td>
+                                    <td style='text-align:center;'>{{kitchen.ctn}}</td>
+                                    <td style='text-align:center;'>{{kitchen.predicted}}</td>
+                                    <td>
+                                        <div ng-if="kitchen.done == 'done'">
+                                            <button type="button" class="btn btn-success">Done</button>
+                                        </div>
+                                        <div ng-if="kitchen.undone == 'undone'">
+                                            <button type="button" class="btn btn-danger">Undone</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class='col-md-12' ng-show='filteredItems == 0'>
+                        <div class='col-md-12'>
+                            <h4>No Data found</h4>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!--for export code--->
+        <div class="col-md-12" id="exportablenew" style="display:none">
+            <table  class="" style="font-size:14px;" id="testTable">
+                <thead style="">
+                <th style=""><b>Name</b>&nbsp;</th>
+                <th style=""><b>Quantity</b>&nbsp;</th>
+                <th style=""><b>Created till now</b>&nbsp;</th>
+                <th style=""><b>Predicted</b>&nbsp;</th>
+                <!-- <th>Action</th>          -->
+                </thead>
+                <tbody ng-init="listcitymaster()">
+                    <tr style="" ng-repeat="kitchen in listcitymasterdata|filter:search">
+                        <td style=''>{{kitchen.name}}</td>
+                        <td style=''>{{kitchen.quantity}}</td>
+                        <td style=''>{{kitchen.ctn}}</td>
+                        <td style=''>{{kitchen.predicted}}</td>
+                        <!-- <td><a href="" ng-click="Getcity(city.cityid)" data-toggle="modal" data-target="#myModalEdit">Edit</a> | <a href="" ng-click="deletecity(city.cityid)">Delete</a></td> -->
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!--end -->
+    </body>
+</html>
